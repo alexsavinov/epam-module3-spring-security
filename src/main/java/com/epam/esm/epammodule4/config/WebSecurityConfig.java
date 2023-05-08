@@ -65,6 +65,7 @@ public class WebSecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .authorizeRequests()
                 .antMatchers("/auth/login", "/auth/register").permitAll()
+                .antMatchers("/test/all").permitAll()
                 .anyRequest().authenticated()
                 .and()
 //                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
