@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: "dev"
+
+  application:
+    name: gift certificates
+
+  config:
+    jpa:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+app:
+  initial-data:
+    records: 0
+
+  jwtSecret:
+  jwtExpirationMs: 3600000
+  jwtRefreshExpirationMs: 86400000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - beans
+          - env
+          - info
+          - metrics
+          - mappings

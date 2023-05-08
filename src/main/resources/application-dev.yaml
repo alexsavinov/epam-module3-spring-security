@@ -1,0 +1,45 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/stage2module4db?createDatabaseIfNotExist=true"
+    username: user
+    password: password
+  jpa:
+    show-sql: true
+
+    hibernate:
+      ddl-auto: update
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id:
+            client-secret:
+            scope: openid,profile,email
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+
+logging:
+  level:
+    com.epam.esm.epammodule4.service: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG
+
+app:
+  initial-data:
+    records: 0
+
+  jwtSecret:
+  jwtExpirationMs: 60000
+  jwtRefreshExpirationMs: 120000
+
+
+#  INSERT INTO role(name) VALUES('ROLE_USER');
+#  INSERT INTO role(name) VALUES('ROLE_MODERATOR');
+#  INSERT INTO role(name) VALUES('ROLE_ADMIN');
