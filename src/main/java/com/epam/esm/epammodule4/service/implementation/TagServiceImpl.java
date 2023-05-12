@@ -5,10 +5,13 @@ import com.epam.esm.epammodule4.exception.TagNotFoundException;
 import com.epam.esm.epammodule4.model.dto.request.CreateTagRequest;
 import com.epam.esm.epammodule4.model.dto.request.UpdateTagRequest;
 import com.epam.esm.epammodule4.model.entity.Tag;
+import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.repository.TagRepository;
 import com.epam.esm.epammodule4.service.TagService;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+
+import com.epam.esm.epammodule4.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -26,6 +29,7 @@ import java.util.Optional;
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
+    private final UserService userService;
     private final ModelMapper modelMapper;
 //    @PersistenceContext
     public final EntityManager entityManager;
@@ -133,24 +137,32 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Optional<Tag> getTopUsedTag(Long userId) {
+    @Transactional
+    public Tag getTopUsedTag(Long userId) {
         log.debug("Looking for top used tag by user's id {}", userId);
+
+        User user = userService.findById(userId);
 
         /* one way - native query*/
 //        Optional<Tag> foundTag = tagRepository.getTopUsedTag(userId);
+        Tag foundTag = tagRepository.getTopUsedTag(user.getId())
+                .orElseThrow(() -> new TagNotFoundException("Requested resource not found (userId = %s)"
+                        .formatted(user.getId())
+                ));
 
         /* another way - HQL query */
-        String query = "select t from Tag t where t in " +
-                "(select c.tags from GiftCertificate c " +
-                "join Order o on c.id = o.giftCertificate.id where o.user.id=:id) " +
-                "group by t.id order by count(t.id) desc LIMIT 1";
-        TypedQuery<Tag> typedQuery = entityManager.createQuery(query, Tag.class);
+//        String query = "select t from Tag t where t in " +
+//                "(select c.tags from GiftCertificate c " +
+//                "join Order o on c.id = o.giftCertificate.id where o.user.id=:id) " +
+//                "group by t.id order by count(t.id) desc";
+//        TypedQuery<Tag> typedQuery = entityManager.createQuery(query, Tag.class);
 
-        typedQuery.setParameter("id", userId);
+//        typedQuery.setMaxResults(1);
+//        typedQuery.setParameter("id", userId);
 
-        Tag foundTag = typedQuery.getSingleResult();
+//        Tag foundTag = typedQuery.getSingleResult();
 
         log.info("Found top used tag by user's id name {}", userId);
-        return Optional.of(foundTag);
+        return foundTag;
     }
 }

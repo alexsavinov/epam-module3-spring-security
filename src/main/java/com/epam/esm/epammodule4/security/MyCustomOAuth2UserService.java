@@ -2,7 +2,6 @@ package com.epam.esm.epammodule4.security;
 
 import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,7 +16,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-//@RequiredArgsConstructor
 public class MyCustomOAuth2UserService extends OidcUserService {
 
     @Autowired
@@ -30,6 +28,8 @@ public class MyCustomOAuth2UserService extends OidcUserService {
 
         String emailFromGoogle = (String) attributes.get("email");
         User user = userService.findByEmail(emailFromGoogle);
+
+        System.out.println("MyCustomOAuth2UserService loadUser " + user);
 
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))

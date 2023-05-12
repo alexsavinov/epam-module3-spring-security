@@ -47,15 +47,23 @@ public class ApplicationControllerAdvice {
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleRoleAlreadyExists(UserAlreadyExistsException exception) {
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException exception) {
         log.warn("User already exists: {}", exception.getMessage());
         ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 40903);
 
         return ResponseEntity.status(CONFLICT).body(responseBody);
     }
 
+    @ExceptionHandler(UserIdIncorrectException.class)
+    public ResponseEntity<ErrorResponse> handleUserIdIncorrect(UserIdIncorrectException exception) {
+        log.warn("User id belongs to another user: {}", exception.getMessage());
+        ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 41003);
+
+        return ResponseEntity.status(CONFLICT).body(responseBody);
+    }
+
     @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGiftCertificateNotFound(OrderNotFoundException exception) {
+    public ResponseEntity<ErrorResponse> handleOrderNotFound(OrderNotFoundException exception) {
         log.warn("Cannot find order: {}", exception.getMessage());
         ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 40404);
 
@@ -63,25 +71,9 @@ public class ApplicationControllerAdvice {
     }
 
     @ExceptionHandler(OrderAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleGiftCertificateNotFound(OrderAlreadyExistsException exception) {
+    public ResponseEntity<ErrorResponse> handleOrderAlreadyExists(OrderAlreadyExistsException exception) {
         log.warn("Order already exists: {}", exception.getMessage());
         ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 40904);
-
-        return ResponseEntity.status(CONFLICT).body(responseBody);
-    }
-
-    @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleRoleNotFound(RoleNotFoundException exception) {
-        log.warn("Cannot find tag: {}", exception.getMessage());
-        ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 40401);
-
-        return ResponseEntity.status(NOT_FOUND).body(responseBody);
-    }
-
-    @ExceptionHandler(RoleAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleRoleAlreadyExists(RoleAlreadyExistsException exception) {
-        log.warn("Role already exists: {}", exception.getMessage());
-        ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 40901);
 
         return ResponseEntity.status(CONFLICT).body(responseBody);
     }
@@ -89,7 +81,7 @@ public class ApplicationControllerAdvice {
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<ErrorResponse> handleTokenRefreshException(TokenRefreshException exception, WebRequest request) {
         log.warn("Token refresh error: {} {}", exception.getMessage(), request.getDescription(false));
-        ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 40901);
+        ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 40905);
 
         return ResponseEntity.status(CONFLICT).body(responseBody);
     }

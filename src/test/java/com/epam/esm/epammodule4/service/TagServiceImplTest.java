@@ -228,9 +228,9 @@ class TagServiceImplTest {
         when(entityManager.createQuery(anyString(), any(Class.class))).thenReturn(typedQuery);
         when(typedQuery.getSingleResult()).thenReturn(expectedTag);
 
-        Optional<Tag> actualTag = subject.getTopUsedTag(TAG_ID);
+        Tag actualTag = subject.getTopUsedTag(TAG_ID);
 
-        assertThat(actualTag).isEqualTo(Optional.of(expectedTag));
+        assertThat(actualTag).isEqualTo(expectedTag);
     }
 
     @Test
@@ -241,11 +241,11 @@ class TagServiceImplTest {
         when(entityManager.createQuery(any(String.class))).thenReturn(typedQuery);
         when(tagRepository.getTopUsedTag(any(Long.class))).thenReturn(Optional.of(expectedTag));
 
-        Optional<Tag> actualTag = subject.getTopUsedTag(TAG_ID);
+        Tag actualTag = subject.getTopUsedTag(TAG_ID);
 
         verify(tagRepository).getTopUsedTag(TAG_ID);
         verifyNoMoreInteractions(tagRepository);
 
-        assertThat(actualTag).isEqualTo(Optional.of(expectedTag));
+        assertThat(actualTag).isEqualTo(expectedTag);
     }
 }

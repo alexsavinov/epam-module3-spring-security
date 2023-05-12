@@ -27,7 +27,7 @@ public class User {
     private String name;
 
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 80)
     private String username;
 
     @NotBlank

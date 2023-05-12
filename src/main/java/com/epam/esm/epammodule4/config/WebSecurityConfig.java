@@ -3,7 +3,6 @@ package com.epam.esm.epammodule4.config;
 import com.epam.esm.epammodule4.security.MyCustomOAuth2UserService;
 import com.epam.esm.epammodule4.security.jwt.AuthEntryPointJwt;
 import com.epam.esm.epammodule4.security.jwt.AuthTokenFilter;
-import com.epam.esm.epammodule4.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,16 +21,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import javax.annotation.Resource;
 
 @Configuration
-@EnableGlobalMethodSecurity(
-        // securedEnabled = true,
-        // jsr250Enabled = true,
-        prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
     @Resource
     private UserDetailsService userDetailsService;
-    //    @Resource
-//    private UserService userService;
     AuthEntryPointJwt unauthorizedHandler;
 
     @Bean
@@ -64,15 +58,17 @@ public class WebSecurityConfig {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .authorizeRequests()
-                .antMatchers("/auth/login", "/auth/register").permitAll()
-                .antMatchers("/test/all").permitAll()
+                .antMatchers("/auth/*").permitAll()
+                .antMatchers("/orders","/orders/*").permitAll()
+                .antMatchers("/users", "/users/*").permitAll()
+                .antMatchers("/tags", "/tags/*").permitAll()
+                .antMatchers("/certificates", "/certificates/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .oauth2Login()
                 .userInfoEndpoint()
-                .oidcUserService(oauthUserService())
-        ;
+                .oidcUserService(oauthUserService());
 
         http.authenticationProvider(authenticationProvider());
 

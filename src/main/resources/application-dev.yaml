@@ -7,11 +7,11 @@ spring:
     url: "jdbc:postgresql://localhost:5432/stage2module4db?createDatabaseIfNotExist=true"
     username: user
     password: password
-  jpa:
-    show-sql: true
+#  jpa:
+#    show-sql: true
 
-    hibernate:
-      ddl-auto: update
+#    hibernate:
+#      ddl-auto: update
 
   security:
     oauth2:
@@ -21,23 +21,30 @@ spring:
             client-id:
             client-secret:
             scope: openid,profile,email
+#            redirect-uri: http://abc.example.com/login/oauth2/callback/google
+#            redirect-uri: http://localhost:8080/oauth2/authorization/google
+            redirect-uri: http://127.0.0.1:8080/login/oauth2/code/google
       resourceserver:
         jwt:
           issuer-uri: https://accounts.google.com
           jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+      resource:
+        filter-order: 3
+
 
 logging:
   level:
     com.epam.esm.epammodule4.service: DEBUG
     org.springframework.web.client.RestTemplate: DEBUG
+#    root: DEBUG
 
 app:
   initial-data:
     records: 0
 
-  jwtSecret:
-  jwtExpirationMs: 60000
-  jwtRefreshExpirationMs: 120000
+  jwtSecret: "SuperSecretKey"
+#  jwtExpirationMs: 60000
+#  jwtRefreshExpirationMs: 120000
 
 
 #  INSERT INTO role(name) VALUES('ROLE_USER');

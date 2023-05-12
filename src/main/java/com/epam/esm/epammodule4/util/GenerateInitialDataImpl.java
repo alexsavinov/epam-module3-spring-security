@@ -69,6 +69,7 @@ public class GenerateInitialDataImpl {
                 .name(addPrefix(name, User.class.getSimpleName()))
                 .username(name)
                 .password(name)
+                .email(name + "@mail.com")
                 .build();
         return user;
     }

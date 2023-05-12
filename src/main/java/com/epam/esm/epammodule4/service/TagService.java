@@ -20,5 +20,5 @@ public interface TagService extends PageableTagService{
 
     Tag findByName(String name);
 
-    Optional<Tag> getTopUsedTag(Long id);
+    Tag getTopUsedTag(Long id);
 }

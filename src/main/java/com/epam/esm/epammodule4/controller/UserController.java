@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,10 @@ public class UserController {
     private final ModelMapper modelMapper;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public UserDto getUserById(@PathVariable Long id) {
+        userService.checkIdOfCurrentUser(id);
+
         User foundUser = userService.findById(id);
         UserDto userDto = modelMapper.map(foundUser, UserDto.class);
 
@@ -33,6 +37,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<UserDto> getUsers(Pageable pageable) {
         Page<User> foundUsers = userService.findAll(pageable);
 

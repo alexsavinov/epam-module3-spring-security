@@ -21,7 +21,7 @@ app:
   initial-data:
     records: 0
 
-  jwtSecret:
+  jwtSecret: "SuperSecretKey"
   jwtExpirationMs: 3600000
   jwtRefreshExpirationMs: 86400000
 

@@ -200,7 +200,7 @@ class TagControllerTest {
         Tag expectedTag = new Tag();
         TagDto tagDto = new TagDto(TAG_ID, "Tag");
 
-        when(tagService.getTopUsedTag(any(Long.class))).thenReturn(Optional.of(expectedTag));
+        when(tagService.getTopUsedTag(any(Long.class))).thenReturn(expectedTag);
         when(modelMapper.map(any(Tag.class), any(Class.class))).thenReturn(tagDto);
 
         mockMvc.perform(

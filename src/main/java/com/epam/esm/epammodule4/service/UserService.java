@@ -1,7 +1,6 @@
 package com.epam.esm.epammodule4.service;
 
 import com.epam.esm.epammodule4.model.dto.request.CreateUserRequest;
-import com.epam.esm.epammodule4.model.entity.Tag;
 import com.epam.esm.epammodule4.model.entity.User;
 
 import java.util.Map;
@@ -24,5 +23,5 @@ public interface UserService extends PageableUserService {
 
     Map<String, Object> getUserClaims();
 
-//    User addRoleToUser(String username, String roleName);
+    void checkIdOfCurrentUser(Long id);
 }

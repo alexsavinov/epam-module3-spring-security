@@ -14,6 +14,7 @@ import com.epam.esm.epammodule4.service.implementation.RefreshTokenService;
 import com.epam.esm.epammodule4.service.implementation.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,20 +43,20 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        System.out.println("signin -- " + loginRequest.getUsername() + " " + loginRequest.getPassword());
+        System.out.println("login -- " + loginRequest.getUsername() + " " + loginRequest.getPassword());
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        System.out.println("authentication.getDetails -- {%s}".formatted(authentication.getDetails()));
+//        System.out.println("authentication.getDetails -- {%s}".formatted(authentication.getDetails()));
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         String jwt = jwtUtils.generateJwtToken(userDetails);
 
-        System.out.println("jwt -- {%s}".formatted(jwt));
+        System.out.println("jwt token -- {%s}".formatted(jwt));
 
         List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
                 .collect(Collectors.toList());
@@ -86,6 +87,7 @@ public class AuthController {
     }
 
     @PostMapping("/refreshtoken")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
         String requestRefreshToken = request.getRefreshToken();
 
@@ -101,11 +103,13 @@ public class AuthController {
     }
 
     @GetMapping("/oidc-principal")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public OidcUser getOidcUserPrincipal(@AuthenticationPrincipal OidcUser principal) {
         return principal;
     }
 
     @GetMapping("/oidc-claims")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public Map<String, Object> getClaimsFromBean() {
         return userService.getUserClaims();
     }

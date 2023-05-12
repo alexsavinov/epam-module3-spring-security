@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class GiftCertificateController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public GiftCertificateDto addCertificate(@RequestBody CreateGiftCertificateRequest createCertificateRequest) {
         GiftCertificate createdCertificate = certificateService.create(createCertificateRequest);
         GiftCertificateDto certificateDto = certificateMapper.toDto(createdCertificate);
@@ -55,6 +57,7 @@ public class GiftCertificateController {
     }
 
     @PatchMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public GiftCertificateDto updateCertificate(@RequestBody UpdateGiftCertificateRequest updateRequest) {
         GiftCertificate updatedCertificate = certificateService.update(updateRequest);
         GiftCertificateDto certificateDto = certificateMapper.toDto(updatedCertificate);
@@ -66,11 +69,13 @@ public class GiftCertificateController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteCertificateById(@PathVariable Long id) {
         certificateService.delete(id);
     }
 
     @GetMapping(value = "/search")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public Page<GiftCertificateDto> searchCertificatesWithSearchParams(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String description,
