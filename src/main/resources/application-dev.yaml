@@ -13,25 +13,6 @@ spring:
 #    hibernate:
 #      ddl-auto: update
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id:
-            client-secret:
-            scope: openid,profile,email
-#            redirect-uri: http://abc.example.com/login/oauth2/callback/google
-#            redirect-uri: http://localhost:8080/oauth2/authorization/google
-            redirect-uri: http://127.0.0.1:8080/login/oauth2/code/google
-      resourceserver:
-        jwt:
-          issuer-uri: https://accounts.google.com
-          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
-      resource:
-        filter-order: 3
-
-
 logging:
   level:
     com.epam.esm.epammodule4.service: DEBUG
@@ -45,8 +26,3 @@ app:
   jwtSecret: "SuperSecretKey"
 #  jwtExpirationMs: 60000
 #  jwtRefreshExpirationMs: 120000
-
-
-#  INSERT INTO role(name) VALUES('ROLE_USER');
-#  INSERT INTO role(name) VALUES('ROLE_MODERATOR');
-#  INSERT INTO role(name) VALUES('ROLE_ADMIN');

@@ -62,6 +62,14 @@ public class ApplicationControllerAdvice {
         return ResponseEntity.status(CONFLICT).body(responseBody);
     }
 
+    @ExceptionHandler(UserCannotDeleteException.class)
+    public ResponseEntity<ErrorResponse> handleUserIdIncorrect(UserCannotDeleteException exception) {
+        log.warn("User cannot be deleted {}", exception.getMessage());
+        ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 41103);
+
+        return ResponseEntity.status(CONFLICT).body(responseBody);
+    }
+
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleOrderNotFound(OrderNotFoundException exception) {
         log.warn("Cannot find order: {}", exception.getMessage());

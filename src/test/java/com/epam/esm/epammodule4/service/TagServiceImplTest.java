@@ -4,11 +4,15 @@ import com.epam.esm.epammodule4.exception.TagAlreadyExistsException;
 import com.epam.esm.epammodule4.exception.TagNotFoundException;
 import com.epam.esm.epammodule4.model.dto.request.CreateTagRequest;
 import com.epam.esm.epammodule4.model.dto.request.UpdateTagRequest;
+import com.epam.esm.epammodule4.model.entity.GiftCertificate;
 import com.epam.esm.epammodule4.model.entity.Tag;
+import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.repository.TagRepository;
 import com.epam.esm.epammodule4.service.implementation.TagServiceImpl;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+
+import com.epam.esm.epammodule4.service.implementation.UserServiceImpl;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +35,13 @@ import static org.mockito.Mockito.*;
 class TagServiceImplTest {
 
     private static final Long TAG_ID = 1L;
+    private static final Long USER_ID = 1L;
     @InjectMocks
     private TagServiceImpl subject;
     @Mock
     private TagRepository tagRepository;
+    @Mock
+    private UserServiceImpl userService;
     @Mock
     private ModelMapper modelMapper;
     @Mock
@@ -224,7 +231,23 @@ class TagServiceImplTest {
     @Test
     void getTopUsedTag() {
         Tag expectedTag = Tag.builder().id(TAG_ID).name("myTag").build();
+        User user = User.builder().id(USER_ID).build();
 
+        when(userService.findById(any(Long.class))).thenReturn(user);
+        when(tagRepository.getTopUsedTag(any(Long.class))).thenReturn(Optional.ofNullable(expectedTag));
+
+        Tag actualTag = subject.getTopUsedTag(TAG_ID);
+
+        assertThat(actualTag).isEqualTo(expectedTag);
+    }
+
+    @Test
+    @Disabled
+    void getTopUsedTagHQLQuery() {
+        Tag expectedTag = Tag.builder().id(TAG_ID).name("myTag").build();
+        User user = User.builder().id(USER_ID).build();
+
+        when(userService.findById(any(Long.class))).thenReturn(user);
         when(entityManager.createQuery(anyString(), any(Class.class))).thenReturn(typedQuery);
         when(typedQuery.getSingleResult()).thenReturn(expectedTag);
 

@@ -31,7 +31,6 @@ public class TagServiceImpl implements TagService {
     private final TagRepository tagRepository;
     private final UserService userService;
     private final ModelMapper modelMapper;
-//    @PersistenceContext
     public final EntityManager entityManager;
 
     @Override
@@ -144,7 +143,6 @@ public class TagServiceImpl implements TagService {
         User user = userService.findById(userId);
 
         /* one way - native query*/
-//        Optional<Tag> foundTag = tagRepository.getTopUsedTag(userId);
         Tag foundTag = tagRepository.getTopUsedTag(user.getId())
                 .orElseThrow(() -> new TagNotFoundException("Requested resource not found (userId = %s)"
                         .formatted(user.getId())

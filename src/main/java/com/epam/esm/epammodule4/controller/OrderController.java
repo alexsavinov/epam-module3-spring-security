@@ -28,7 +28,6 @@ public class OrderController {
     private final UserService userService;
 
     @GetMapping(value = "/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public OrderDto getOrderById(@PathVariable Long id) {
         Order foundOrder = orderService.findById(id);
         OrderDto orderDto = orderMapper.toDto(foundOrder);
@@ -39,7 +38,6 @@ public class OrderController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public Page<OrderDto> getAllOrders(Pageable pageable) {
         Page<Order> foundOrders = orderService.findAll(pageable);
 
@@ -48,7 +46,6 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public OrderDto addOrder(@RequestBody CreateOrderRequest createOrderRequest) {
         userService.checkIdOfCurrentUser(createOrderRequest.getUserId());
 
@@ -73,13 +70,11 @@ public class OrderController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('ADMIN')")
     public void deleteOrderById(@PathVariable Long id) {
         orderService.delete(id);
     }
 
     @GetMapping(value = "/{orderId}/user")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public OrderDto getOrderByIdAndUserId(@PathVariable Long orderId, @RequestParam Long userId) {
         userService.checkIdOfCurrentUser(userId);
 
@@ -92,7 +87,6 @@ public class OrderController {
     }
 
     @GetMapping(value = "/user")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public Page<OrderDto> getAllOrdersForUser(@RequestParam Long userId, Pageable pageable) {
         userService.checkIdOfCurrentUser(userId);
 
@@ -102,8 +96,9 @@ public class OrderController {
     }
 
     @GetMapping(value = "/cost")
-    @PreAuthorize("hasRole('ADMIN')")
     public HighestCostResponse getHighestCost(@RequestParam Long userId) {
+        userService.checkIdOfCurrentUser(userId);
+
         Double cost = orderService.getHighestCost(userId);
 
         HighestCostResponse highestCostDto = new HighestCostResponse(cost);

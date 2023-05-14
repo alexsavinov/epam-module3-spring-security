@@ -48,7 +48,7 @@ class UserControllerTest {
     @Test
     void getUserById() throws Exception {
         User expectedUser = new User();
-        UserDto userDto = new UserDto(USER_ID, "User1");
+        UserDto userDto = UserDto.builder().id(USER_ID).name("User1").build();
 
         when(userService.findById(any(Long.class))).thenReturn(expectedUser);
         when(modelMapper.map(any(User.class), any(Class.class))).thenReturn(userDto);
@@ -60,6 +60,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id").value(userDto.getId().toString()))
                 .andExpect(jsonPath("$.name").value(userDto.getName()));
 
+        verify(userService).checkIdOfCurrentUser(USER_ID);
         verify(userService).findById(USER_ID);
         verify(modelMapper).map(expectedUser, UserDto.class);
         verifyNoMoreInteractions(userService, modelMapper);
@@ -77,6 +78,7 @@ class UserControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage").value(errorMessage));
 
+        verify(userService).checkIdOfCurrentUser(USER_ID);
         verify(userService).findById(USER_ID);
         verifyNoInteractions(modelMapper);
         verifyNoMoreInteractions(userService);

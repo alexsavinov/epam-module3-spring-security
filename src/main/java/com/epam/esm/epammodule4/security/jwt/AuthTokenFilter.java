@@ -15,7 +15,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
+
+import static java.util.Optional.*;
 
 @Slf4j
 public class AuthTokenFilter extends OncePerRequestFilter {
@@ -29,24 +30,20 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
-        try {
-            String jwt = parseJwt(request);
 
-            System.out.println("doFilterInternal -- jwt -- {%s}".formatted(jwt));
+        String jwtToken = parseJwt(request);
 
-            if (Optional.ofNullable(jwt).isPresent() && jwtUtils.validateJwtToken(jwt)) {
-                String username = jwtUtils.getUserNameFromJwtToken(jwt);
+        if (needTokenValidation(jwtToken)) {
+            String username = jwtUtils.getUserNameFromJwtToken(jwtToken);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
+
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
@@ -60,5 +57,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         }
 
         return null;
+    }
+
+    private boolean needTokenValidation(String token) {
+        return ofNullable(token).isPresent()
+                && jwtUtils.validateJwtToken(token)
+                && ofNullable(SecurityContextHolder.getContext().getAuthentication()).isPresent();
     }
 }

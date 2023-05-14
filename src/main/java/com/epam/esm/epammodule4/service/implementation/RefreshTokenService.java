@@ -21,11 +21,7 @@ public class RefreshTokenService {
 
     @Value("${app.jwtRefreshExpirationMs}")
     private Long refreshTokenDurationMs;
-
-//    @Autowired
     private final RefreshTokenRepository refreshTokenRepository;
-
-//    @Autowired
     private final UserRepository userRepository;
 
     public Optional<RefreshToken> findByToken(String token) {
@@ -40,6 +36,7 @@ public class RefreshTokenService {
         refreshToken.setToken(UUID.randomUUID().toString());
 
         refreshToken = refreshTokenRepository.save(refreshToken);
+
         return refreshToken;
     }
 

@@ -1,21 +1,25 @@
 package com.epam.esm.epammodule4.service.implementation;
 
+import com.epam.esm.epammodule4.exception.RoleNotFoundException;
 import com.epam.esm.epammodule4.exception.UserAlreadyExistsException;
 import com.epam.esm.epammodule4.exception.UserIdIncorrectException;
 import com.epam.esm.epammodule4.exception.UserNotFoundException;
 import com.epam.esm.epammodule4.model.ERole;
 import com.epam.esm.epammodule4.model.dto.request.CreateUserRequest;
+import com.epam.esm.epammodule4.model.dto.request.UpdateUserRequest;
+import com.epam.esm.epammodule4.model.entity.Order;
 import com.epam.esm.epammodule4.model.entity.Role;
 import com.epam.esm.epammodule4.model.entity.User;
+import com.epam.esm.epammodule4.repository.OrderRepository;
 import com.epam.esm.epammodule4.repository.PageableUserRepository;
 import com.epam.esm.epammodule4.repository.RoleRepository;
 import com.epam.esm.epammodule4.repository.UserRepository;
 import com.epam.esm.epammodule4.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,8 +29,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static java.util.Optional.*;
 
 @Slf4j
 @Service
@@ -36,12 +43,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PageableUserRepository pageableUserRepository;
     private final RoleRepository roleRepository;
-    private final ModelMapper modelMapper;
+    private final OrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public User findById(Long id) {
         log.debug("Looking for a user with id {}", id);
+
+        checkIdOfCurrentUser(id);
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Requested resource not found (id = %s)"
@@ -105,57 +114,16 @@ public class UserServiceImpl implements UserService {
     public User create(CreateUserRequest createRequest) {
         log.debug("Creating a new user");
 
-        Set<String> strRoles = createRequest.getRole();
-        Set<Role> roles = new HashSet<>();
-
-        System.out.println("** strRoles {%s}".formatted(strRoles));
-        System.out.println("** signUpRequest.getRole() {%s}".formatted(createRequest.getRole()));
-
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        throw new RuntimeException("Error: Role ADMIN cannot be added.");
-//                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                        roles.add(adminRole);
-//
-//                        break;
-                    case "mod":
-                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(modRole);
-
-                        break;
-                    default:
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
-        }
-
-
         User newUser = User.builder()
                 .name(createRequest.getName())
                 .username(createRequest.getUsername())
                 .email(createRequest.getEmail())
                 .password(passwordEncoder.encode(createRequest.getPassword()))
-                .roles(roles)
+                .roles(parseRoles(createRequest.getRole()))
                 .build();
 
-        System.out.println("###### newUser = {%s} {%s} {%s} {%s} {%s}"
-                .formatted(newUser.getName(), newUser.getEmail(),
-                        newUser.getUsername(), newUser.getPassword(), newUser.getRoles()));
-//        User newUser = modelMapper.map(createRequest, User.class);
-        User createdUser;
-
         try {
-            createdUser = userRepository.save(newUser);
+            User createdUser = userRepository.save(newUser);
 
             log.info("Created a new user with id {}", createdUser.getId());
             return createdUser;
@@ -163,6 +131,52 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException(
                     "Requested resource already exists (username = %s)".formatted(createRequest.getUsername()));
         }
+    }
+
+    @Override
+    public User update(UpdateUserRequest updateRequest) {
+        log.debug("Updating user");
+
+        checkIdOfCurrentUser(updateRequest.getId());
+
+        User user = User.builder()
+                .id(updateRequest.getId())
+                .name(updateRequest.getName())
+                .username(updateRequest.getUsername())
+                .email(updateRequest.getEmail())
+                .password(passwordEncoder.encode(updateRequest.getPassword()))
+                .roles(parseRoles(updateRequest.getRole()))
+                .build();
+
+        try {
+            User updatedUser = userRepository.save(user);
+
+            log.info("Updated a user with id {}", updatedUser.getId());
+            return updatedUser;
+        } catch (DataIntegrityViolationException ex) {
+            throw new UserAlreadyExistsException(
+                    "Requested resource already exists (username = %s)".formatted(updateRequest.getUsername()));
+        }
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        log.debug("Deleting user with id {}", id);
+
+        User foundUser = findById(id);
+
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<Order> foundOrders = orderRepository.findAllByUserId(id, pageable);
+
+        if (foundOrders.getTotalElements() > 0) {
+            throw new UserAlreadyExistsException(
+                    "User cannot be deleted - has found in (%d) orders".formatted(foundOrders.getTotalElements()));
+        }
+
+        userRepository.delete(foundUser);
+
+        log.info("User with id {} is deleted", foundUser.getId());
     }
 
     @Override
@@ -187,19 +201,40 @@ public class UserServiceImpl implements UserService {
 
     public void checkIdOfCurrentUser(Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         Object principal = authentication.getPrincipal();
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-
-        boolean roleAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
-
         String username = ((UserDetails) principal).getUsername();
         User user = findByUsername(username);
 
-        if (!roleAdmin && !user.getId().equals(id)) {
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean roleAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+        if (!roleAdmin && user.getId() != id) {
             throw new UserIdIncorrectException(
                     "User id (%d) belongs to another user".formatted(id)
             );
         }
+    }
+
+    private Set<Role> parseRoles(Set<String> strRoles) {
+        Set<Role> roles = new HashSet<>();
+
+        if (ofNullable(strRoles).isEmpty()) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RoleNotFoundException("Error: Role USER is not found."));
+            roles.add(userRole);
+        } else {
+            strRoles.forEach(role -> {
+                if (role.equals("admin")) {
+                    throw new RoleNotFoundException("Role ADMIN cannot be assigned on registration.");
+                } else {
+                    Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                            .orElseThrow(() -> new RuntimeException("Role USER is not found."));
+                    roles.add(userRole);
+                }
+            });
+        }
+
+        return roles;
     }
 }

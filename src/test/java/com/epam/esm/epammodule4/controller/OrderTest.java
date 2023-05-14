@@ -11,6 +11,7 @@ import com.epam.esm.epammodule4.model.entity.GiftCertificate;
 import com.epam.esm.epammodule4.model.entity.Order;
 import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.service.OrderService;
+import com.epam.esm.epammodule4.service.UserService;
 import com.epam.esm.epammodule4.service.mapper.OrderMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,8 @@ class OrderTest {
     @Mock
     private OrderService orderService;
     @Mock
+    private UserService userService;
+    @Mock
     private OrderMapper orderMapper;
     @InjectMocks
     private OrderController subject;
@@ -71,7 +74,7 @@ class OrderTest {
                 .build();
 
         User expectedUser = User.builder().id(USER_ID).name("User").build();
-        UserDto userDto = new UserDto(USER_ID, "User");
+        UserDto userDto =  UserDto.builder().id(USER_ID).name("User").build();
 
         Order expectedOrder = Order.builder()
                 .id(ORDER_ID)
@@ -157,7 +160,7 @@ class OrderTest {
                 .build();
 
         User expectedUser = User.builder().id(USER_ID).name("User").build();
-        UserDto userDto = new UserDto(USER_ID, "User");
+        UserDto userDto = UserDto.builder().id(USER_ID).name("User").build();
 
         Order expectedOrder = Order.builder()
                 .id(ORDER_ID)
@@ -191,8 +194,9 @@ class OrderTest {
                 .andExpect(jsonPath("$.certificate.description").value(orderDto.getCertificate().getDescription()))
                 .andExpect(jsonPath("$.price").value(orderDto.getPrice()));
 
+        verify(userService).checkIdOfCurrentUser(null);
         verify(orderMapper).toDto(expectedOrder);
-        verifyNoMoreInteractions(orderService, orderMapper);
+        verifyNoMoreInteractions(orderService, orderMapper, userService);
     }
 
     @Test
@@ -212,6 +216,7 @@ class OrderTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorMessage").value("Order already exists"));
 
+        verify(userService).checkIdOfCurrentUser(null);
         verifyNoInteractions(orderMapper);
         verifyNoMoreInteractions(orderService);
     }
@@ -228,7 +233,7 @@ class OrderTest {
                 .build();
 
         User expectedUser = User.builder().id(USER_ID).name("User").build();
-        UserDto userDto = new UserDto(USER_ID, "User");
+        UserDto userDto = UserDto.builder().id(USER_ID).name("User").build();
 
         Order expectedOrder = Order.builder()
                 .id(ORDER_ID)
@@ -290,7 +295,7 @@ class OrderTest {
                 .build();
 
         User user = User.builder().id(USER_ID).name("User").build();
-        UserDto userDto = new UserDto(USER_ID, "User");
+        UserDto userDto = UserDto.builder().id(USER_ID).name("User").build();
 
         Order expectedOrder = Order.builder()
                 .id(ORDER_ID)
@@ -318,9 +323,10 @@ class OrderTest {
                 .andExpect(jsonPath("$.user.id").value(expectedOrder.getUser().getId()))
                 .andExpect(jsonPath("$.certificate.id").value(expectedOrder.getGiftCertificate().getId()));
 
+        verify(userService).checkIdOfCurrentUser(USER_ID);
         verify(orderService).findByOrderIdAndUserId(USER_ID, ORDER_ID);
         verify(orderMapper).toDto(expectedOrder);
-        verifyNoMoreInteractions(orderService, orderMapper);
+        verifyNoMoreInteractions(orderService, orderMapper, userService);
     }
 
     @Test
@@ -335,7 +341,7 @@ class OrderTest {
                 .build();
 
         User user = User.builder().id(USER_ID).name("User").build();
-        UserDto userDto = new UserDto(USER_ID, "User");
+        UserDto userDto = UserDto.builder().id(USER_ID).name("User").build();
 
         Order expectedOrder = Order.builder()
                 .id(ORDER_ID)
@@ -368,9 +374,10 @@ class OrderTest {
                 )
                 .andExpect(status().isOk());
 
+        verify(userService).checkIdOfCurrentUser(USER_ID);
         verify(orderService).findAllByUserId(USER_ID, pageable);
         verify(orderMapper).toDto(expectedOrder);
-        verifyNoMoreInteractions(orderService, orderMapper);
+        verifyNoMoreInteractions(orderService, orderMapper, userService);
     }
 
     @Test
@@ -386,7 +393,8 @@ class OrderTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.highestCost").value(expectedCostDto.getHighestCost().toString()));
 
+        verify(userService).checkIdOfCurrentUser(USER_ID);
         verify(orderService).getHighestCost(USER_ID);
-        verifyNoMoreInteractions(orderService);
+        verifyNoMoreInteractions(orderService, userService);
     }
 }

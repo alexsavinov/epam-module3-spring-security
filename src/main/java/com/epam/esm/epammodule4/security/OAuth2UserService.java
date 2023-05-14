@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class MyCustomOAuth2UserService extends OidcUserService {
+public class OAuth2UserService extends OidcUserService {
 
     @Autowired
     private UserService userService;
@@ -28,8 +28,6 @@ public class MyCustomOAuth2UserService extends OidcUserService {
 
         String emailFromGoogle = (String) attributes.get("email");
         User user = userService.findByEmail(emailFromGoogle);
-
-        System.out.println("MyCustomOAuth2UserService loadUser " + user);
 
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))

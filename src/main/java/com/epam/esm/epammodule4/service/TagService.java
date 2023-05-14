@@ -4,8 +4,6 @@ import com.epam.esm.epammodule4.model.dto.request.CreateTagRequest;
 import com.epam.esm.epammodule4.model.dto.request.UpdateTagRequest;
 import com.epam.esm.epammodule4.model.entity.Tag;
 
-import java.util.Optional;
-
 public interface TagService extends PageableTagService{
 
     Tag findById(Long id);

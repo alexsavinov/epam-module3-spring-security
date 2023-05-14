@@ -11,7 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,13 +36,26 @@ class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    Authentication authentication;
+    @Mock
+    SecurityContext securityContext;
+    @Mock
+    UserDetails principal;
+    @Mock
     private PageableUserRepository pageableUserRepository;
 
     @Test
     void findById() {
-        User expectedUser = new User();
+        User expectedUser = User.builder().id(USER_ID).build();
+//        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(principal);
+        when(principal.getUsername()).thenReturn("user1");
+        when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(expectedUser));
         when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(expectedUser));
+
+        SecurityContextHolder.setContext(securityContext);
 
         User actualUser = subject.findById(USER_ID);
 
@@ -47,15 +67,21 @@ class UserServiceImplTest {
 
     @Test
     void findById_whenUserIsNotFoundById_throwsUserNotFoundException() {
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+        String username = "user1";
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(principal);
+        when(principal.getUsername()).thenReturn(username);
+        when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
+
+        SecurityContextHolder.setContext(securityContext);
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 () -> subject.findById(USER_ID));
 
-        verify(userRepository).findById(USER_ID);
         verifyNoMoreInteractions(userRepository);
 
-        String expectedMessage = "Requested resource not found (id = %s)".formatted(USER_ID);
+        String expectedMessage = "Requested resource not found (username = user1)";
         assertThat(exception.getMessage()).isEqualTo(expectedMessage);
     }
 

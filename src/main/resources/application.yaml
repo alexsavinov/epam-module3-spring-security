@@ -25,6 +25,9 @@ app:
   jwtExpirationMs: 3600000
   jwtRefreshExpirationMs: 86400000
 
+  use-oauth2:
+    false
+
 management:
   endpoints:
     web:
