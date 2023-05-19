@@ -219,7 +219,6 @@ class GiftCertificateControllerTest {
                 )
                 .andExpect(status().isOk());
 
-
         verify(certificateMapper).toDto(expectedCertificate);
         verifyNoMoreInteractions(certificateService, certificateMapper);
     }

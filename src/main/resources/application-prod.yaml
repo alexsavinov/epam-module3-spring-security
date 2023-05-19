@@ -2,3 +2,18 @@ spring:
   config:
     activate:
       on-profile: prod
+
+  datasource:
+    url: "jdbc:postgresql://stage2module4db.chehddbnvnlg.us-east-1.rds.amazonaws.com:5432/stage2module4db?createDatabaseIfNotExist=true"
+    username: postgres
+    password: @@@@
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+app:
+  initial-data:
+    records: 0
+
+  jwtSecret: "SuperSecretKey"
