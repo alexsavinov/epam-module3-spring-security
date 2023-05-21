@@ -6,7 +6,7 @@ spring:
   datasource:
     url: "jdbc:postgresql://stage2module4db.chehddbnvnlg.us-east-1.rds.amazonaws.com:5432/stage2module4db?createDatabaseIfNotExist=true"
     username: postgres
-    password: @@@@
+    password:
 
   jpa:
     hibernate:
