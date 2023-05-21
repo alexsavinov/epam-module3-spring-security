@@ -196,6 +196,21 @@
         </plugins>
     </build>
 
-
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>
+                    http://192.168.1.215:9000
+                </sonar.host.url>
+                <sonar.token>
+                    squ_4b1e26f559d526a1ce68c0590e8c034fb3e0e431
+                </sonar.token>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
