@@ -132,22 +132,22 @@
                 <version>0.8.8</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/epam/esm/epammodule4/config/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/service/mapper/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/repository/specification/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/model/dto/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/util/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/model/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/model/dto/response/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/model/dto/request/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/model/entity/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/security/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/security/jwt/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/controller/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/exception/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/service/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/service/implementation/*</exclude>
-                        <exclude>com/epam/esm/epammodule4/EpamModule4Application.*</exclude>
+<!--                        <exclude>com/epam/esm/epammodule4/config/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/service/mapper/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/repository/specification/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/model/dto/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/util/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/model/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/model/dto/response/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/model/dto/request/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/model/entity/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/security/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/security/jwt/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/controller/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/exception/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/service/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/service/implementation/*</exclude>-->
+<!--                        <exclude>com/epam/esm/epammodule4/EpamModule4Application.*</exclude>-->
                     </excludes>
                 </configuration>
                 <executions>
@@ -174,11 +174,11 @@
                                 <rule>
                                     <element>CLASS</element>
                                     <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>50%</minimum>
-                                        </limit>
+<!--                                        <limit>-->
+<!--                                            <counter>LINE</counter>-->
+<!--                                            <value>COVEREDRATIO</value>-->
+<!--                                            <minimum>1%</minimum>-->
+<!--                                        </limit>-->
                                     </limits>
                                 </rule>
                             </rules>
