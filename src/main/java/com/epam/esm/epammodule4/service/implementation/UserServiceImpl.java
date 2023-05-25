@@ -1,9 +1,6 @@
 package com.epam.esm.epammodule4.service.implementation;
 
-import com.epam.esm.epammodule4.exception.RoleNotFoundException;
-import com.epam.esm.epammodule4.exception.UserAlreadyExistsException;
-import com.epam.esm.epammodule4.exception.UserIdIncorrectException;
-import com.epam.esm.epammodule4.exception.UserNotFoundException;
+import com.epam.esm.epammodule4.exception.*;
 import com.epam.esm.epammodule4.model.ERole;
 import com.epam.esm.epammodule4.model.dto.request.CreateUserRequest;
 import com.epam.esm.epammodule4.model.dto.request.UpdateUserRequest;
@@ -170,7 +167,7 @@ public class UserServiceImpl implements UserService {
         Page<Order> foundOrders = orderRepository.findAllByUserId(id, pageable);
 
         if (foundOrders.getTotalElements() > 0) {
-            throw new UserAlreadyExistsException(
+            throw new UserCannotDeleteException(
                     "User cannot be deleted - has found in (%d) orders".formatted(foundOrders.getTotalElements()));
         }
 
@@ -190,12 +187,13 @@ public class UserServiceImpl implements UserService {
     }
 
     public Map<String, Object> getUserClaims() {
-        Authentication authentication = SecurityContextHolder.getContext()
-                .getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication.getPrincipal() instanceof OidcUser) {
             OidcUser principal = ((OidcUser) authentication.getPrincipal());
             return principal.getClaims();
         }
+
         return Collections.emptyMap();
     }
 
@@ -229,7 +227,7 @@ public class UserServiceImpl implements UserService {
                     throw new RoleNotFoundException("Role ADMIN cannot be assigned on registration.");
                 } else {
                     Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                            .orElseThrow(() -> new RuntimeException("Role USER is not found."));
+                            .orElseThrow(() -> new RoleNotFoundException("Role USER is not found."));
                     roles.add(userRole);
                 }
             });

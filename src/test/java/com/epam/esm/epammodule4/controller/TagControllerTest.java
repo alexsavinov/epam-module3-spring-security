@@ -164,16 +164,16 @@ class TagControllerTest {
 
     @Test
     void updateTag() throws Exception {
-        Tag uodateTag = new Tag();
+        Tag updateTag = new Tag();
         TagDto tagDto = new TagDto(TAG_ID, "myTag");
 
-        when(tagService.update(any(UpdateTagRequest.class))).thenReturn(uodateTag);
+        when(tagService.update(any(UpdateTagRequest.class))).thenReturn(updateTag);
         when(modelMapper.map(any(Tag.class), any(Class.class))).thenReturn(tagDto);
 
         RequestBuilder requestBuilder = patch("/tags")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .characterEncoding("UTF-8")
-                .content(objectMapper.writeValueAsString(uodateTag))
+                .content(objectMapper.writeValueAsString(updateTag))
                 .accept(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(requestBuilder)
@@ -181,7 +181,7 @@ class TagControllerTest {
                 .andExpect(jsonPath("$.id").value(tagDto.getId().toString()))
                 .andExpect(jsonPath("$.name").value(tagDto.getName()));
 
-        verify(modelMapper).map(uodateTag, TagDto.class);
+        verify(modelMapper).map(updateTag, TagDto.class);
         verifyNoMoreInteractions(tagService, modelMapper);
     }
 

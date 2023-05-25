@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-class OrderTest {
+class OrderControllerTest {
 
     private static final Long USER_ID = 1L;
     private static final Long CERTIFICATE_ID = 1L;

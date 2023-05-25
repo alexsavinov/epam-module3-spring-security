@@ -1,8 +1,10 @@
 package com.epam.esm.epammodule4.controller;
 
 import com.epam.esm.epammodule4.exception.TokenRefreshException;
+import com.epam.esm.epammodule4.model.dto.UserDto;
 import com.epam.esm.epammodule4.model.dto.request.CreateUserRequest;
 import com.epam.esm.epammodule4.model.dto.request.LoginRequest;
+import com.epam.esm.epammodule4.model.dto.request.SignupRequest;
 import com.epam.esm.epammodule4.model.dto.request.TokenRefreshRequest;
 import com.epam.esm.epammodule4.model.dto.response.JwtResponse;
 import com.epam.esm.epammodule4.model.dto.response.MessageResponse;
@@ -13,6 +15,7 @@ import com.epam.esm.epammodule4.service.UserService;
 import com.epam.esm.epammodule4.service.implementation.RefreshTokenService;
 import com.epam.esm.epammodule4.service.implementation.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,6 +36,7 @@ public class AuthController {
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
     private final JwtUtils jwtUtils;
+    private final ModelMapper modelMapper;
 
     @PostMapping("/login")
     public JwtResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -58,14 +62,16 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public MessageResponse registerUser(@Valid @RequestBody CreateUserRequest createRequest) {
-        if (userService.existsByUsername(createRequest.getUsername())) {
+    public MessageResponse registerUser(@Valid @RequestBody SignupRequest signupRequest) {
+        if (userService.existsByUsername(signupRequest.getUsername())) {
             return new MessageResponse("Error: Username is already taken!");
         }
 
-        if (userService.existsByEmail(createRequest.getEmail())) {
+        if (userService.existsByEmail(signupRequest.getEmail())) {
             return new MessageResponse("Error: Email is already in use!");
         }
+
+        CreateUserRequest createRequest = modelMapper.map(signupRequest, CreateUserRequest.class);
 
         userService.create(createRequest);
 

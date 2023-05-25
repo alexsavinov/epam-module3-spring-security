@@ -4,7 +4,6 @@ import com.epam.esm.epammodule4.exception.TagAlreadyExistsException;
 import com.epam.esm.epammodule4.exception.TagNotFoundException;
 import com.epam.esm.epammodule4.model.dto.request.CreateTagRequest;
 import com.epam.esm.epammodule4.model.dto.request.UpdateTagRequest;
-import com.epam.esm.epammodule4.model.entity.GiftCertificate;
 import com.epam.esm.epammodule4.model.entity.Tag;
 import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.repository.TagRepository;
@@ -254,6 +253,21 @@ class TagServiceImplTest {
         Tag actualTag = subject.getTopUsedTag(TAG_ID);
 
         assertThat(actualTag).isEqualTo(expectedTag);
+    }
+
+
+    @Test
+    @Disabled
+    void getTopUsedTagHQLQuery_whenTagNotFound_thenThrowsTagNotFoundException() {
+        User user = User.builder().id(USER_ID).build();
+
+        when(userService.findById(any(Long.class))).thenReturn(user);
+
+        TagNotFoundException exception = assertThrows(TagNotFoundException.class,
+                () -> subject.getTopUsedTag(TAG_ID));
+
+        String expectedMessage = "Requested resource not found (userId = %s)".formatted(user.getId());
+        assertThat(exception.getMessage()).isEqualTo(expectedMessage);
     }
 
     @Test
