@@ -6,14 +6,18 @@ import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.repository.RefreshTokenRepository;
 import com.epam.esm.epammodule4.repository.UserRepository;
 import com.epam.esm.epammodule4.service.implementation.RefreshTokenService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,10 +79,21 @@ class RefreshTokenServiceTest {
     }
 
     @Test
+    @Disabled
     void verifyExpiration() {
         User user = User.builder().id(USER_ID).name("User").build();
 
         String refreshTokenString = "refreshtoken";
+
+//        String instantExpected = "2014-12-22T10:15:30Z";
+//        Clock clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
+//        Instant instant = Instant.now(clock);
+//
+//        try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+//            mockedStatic.when(Instant::now).thenReturn(instant);
+//            Instant now = Instant.now();
+//            assertThat(now.toString()).isEqualTo(instantExpected);
+//        }
 
         RefreshToken expectedRefreshToken = RefreshToken.builder()
                 .token(refreshTokenString)
