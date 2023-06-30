@@ -8,6 +8,7 @@ import com.epam.esm.epammodule4.model.entity.Tag;
 import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.repository.TagRepository;
 import com.epam.esm.epammodule4.service.implementation.TagServiceImpl;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
@@ -138,6 +139,7 @@ class TagServiceImplTest {
         Tag expectedTag = Tag.builder().id(TAG_ID).name("myTag").build();
 
         when(tagRepository.findById(any(Long.class))).thenReturn(Optional.of(updateTag));
+        when(tagRepository.findFirstByName(any(String.class))).thenReturn(Optional.of(updateTag));
         when(updateRequest.getName()).thenReturn("tag1");
         when(tagRepository.save(any(Tag.class))).thenReturn(expectedTag);
 
@@ -209,7 +211,6 @@ class TagServiceImplTest {
 
         assertThat(actualTag).isEqualTo(expectedTag);
     }
-
 
     @Test
     void createTagWithCheck_whenTagFound_returnsCurrentTag() {

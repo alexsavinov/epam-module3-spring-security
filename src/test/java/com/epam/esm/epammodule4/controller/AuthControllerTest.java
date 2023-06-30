@@ -204,8 +204,9 @@ class AuthControllerTest {
                 .accept(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(requestBuilder)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(messageResponse.getMessage()));
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode").value("41203"))
+                .andExpect(jsonPath("$.errorMessage").value(messageResponse.getMessage()));
 
         verify(userService).existsByUsername("user");
         verifyNoMoreInteractions(userService);
@@ -230,8 +231,9 @@ class AuthControllerTest {
                 .accept(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(requestBuilder)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(messageResponse.getMessage()));
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode").value("41303"))
+                .andExpect(jsonPath("$.errorMessage").value(messageResponse.getMessage()));
 
         verify(userService).existsByUsername("user");
         verify(userService).existsByEmail("user@mail.com");
@@ -242,9 +244,10 @@ class AuthControllerTest {
     void refreshtoken() throws Exception {
         String refreshTokenString = "12345";
         TokenRefreshRequest request = new TokenRefreshRequest(refreshTokenString);
+        User user = User.builder().id(USER_ID).name("User").build();
         RefreshToken refreshToken = RefreshToken.builder()
                 .token(refreshTokenString)
-                .user(User.builder().id(USER_ID).name("User").build())
+                .user(user)
                 .build();
 
         when(refreshTokenService.findByToken(any(String.class))).thenReturn(Optional.of(refreshToken));
@@ -262,7 +265,7 @@ class AuthControllerTest {
 
         verify(refreshTokenService).findByToken(refreshTokenString);
         verify(refreshTokenService).verifyExpiration(refreshToken);
-        verify(jwtUtils).generateTokenFromUser(null);
+        verify(jwtUtils).generateTokenFromUser(user);
         verifyNoMoreInteractions(refreshTokenService, jwtUtils);
     }
 

@@ -23,9 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -224,15 +222,16 @@ class UserServiceImplTest {
 
     @Test
     void update() {
+        Role role = Role.builder().name(ERole.ROLE_USER).build();
         UpdateUserRequest updateRequest = UpdateUserRequest.builder()
                 .id(USER_ID)
                 .name("myUser")
                 .password("pass")
+                .role(Set.of("ROLE_USER"))
                 .build();
 
         User expectedUser = User.builder().id(USER_ID).name("myUser").password("pass").build();
 
-        Role role = Role.builder().name(ERole.ROLE_USER).build();
 
         when(userRepository.save(any(User.class))).thenReturn(expectedUser);
         when(roleRepository.findByName(any(ERole.class))).thenReturn(Optional.of(role));
@@ -240,6 +239,7 @@ class UserServiceImplTest {
         when(authentication.getPrincipal()).thenReturn(principal);
         when(principal.getUsername()).thenReturn("user1");
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(expectedUser));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(expectedUser));
 
         SecurityContextHolder.setContext(securityContext);
 
