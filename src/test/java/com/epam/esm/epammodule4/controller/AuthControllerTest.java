@@ -262,7 +262,7 @@ class AuthControllerTest {
 
         verify(refreshTokenService).findByToken(refreshTokenString);
         verify(refreshTokenService).verifyExpiration(refreshToken);
-        verify(jwtUtils).generateTokenFromUsername(null);
+        verify(jwtUtils).generateTokenFromUser(null);
         verifyNoMoreInteractions(refreshTokenService, jwtUtils);
     }
 

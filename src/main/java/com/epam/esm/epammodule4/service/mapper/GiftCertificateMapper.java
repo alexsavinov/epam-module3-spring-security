@@ -51,7 +51,7 @@ public class GiftCertificateMapper {
         );
 
         ofNullable(certificate.getLastUpdateDate()).ifPresent(lastUpdateDate ->
-            certificateDto.setCreateDate(dateUtil.toIso8601Format(lastUpdateDate))
+            certificateDto.setLastUpdateDate(dateUtil.toIso8601Format(lastUpdateDate))
         );
 
         ofNullable(certificate.getTags()).ifPresent(tags -> {

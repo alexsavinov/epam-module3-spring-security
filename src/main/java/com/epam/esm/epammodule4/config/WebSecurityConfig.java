@@ -13,14 +13,19 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -61,13 +66,12 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        http.csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                .antMatchers("/auth/login", "/auth/register").permitAll()
-                .antMatchers("/auth/refreshtoken", "/auth/logout").authenticated()
-
+                .antMatchers("/auth/login", "/auth/register", "/auth/refreshtoken", "/auth/logout").permitAll()
                 .antMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                 .antMatchers(HttpMethod.GET, "/users/*").authenticated()
                 .antMatchers(HttpMethod.PATCH, "/users").authenticated()
@@ -84,9 +88,9 @@ public class WebSecurityConfig {
                 .antMatchers(HttpMethod.POST, "/certificates").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/certificates/*").hasRole("ADMIN")
 
-                .antMatchers(HttpMethod.GET, "/orders", "/orders/*").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/orders").hasRole("ADMIN")
                 .antMatchers(HttpMethod.GET, "/orders/*/user", "/orders/user", "/orders/cost").authenticated()
-                .antMatchers(HttpMethod.PATCH, "/orders").authenticated()
+                .antMatchers(HttpMethod.PATCH, "/orders").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, "/orders").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/orders/*").hasRole("ADMIN");
 
@@ -97,10 +101,34 @@ public class WebSecurityConfig {
         }
 
         http.authenticationProvider(authenticationProvider());
-
+        http.cors().configurationSource(corsConfigurationSource());
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:4200"));
+        configuration.addAllowedHeader("*");
+        configuration.setAllowedMethods(Arrays.asList(
+                HttpMethod.OPTIONS.name(),
+                HttpMethod.GET.name(),
+                HttpMethod.POST.name(),
+                HttpMethod.PUT.name(),
+                HttpMethod.PATCH.name(),
+                HttpMethod.DELETE.name(),
+                HttpMethod.HEAD.name()
+        ));
+        configuration.addExposedHeader("Authorization");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 
     @Bean

@@ -40,6 +40,11 @@ public class GenerateInitialDataImpl {
             Tag tag = generateTag(rnd);
             tagRepository.save(tag);
 
+//            Long id = Long.valueOf(getRandomInt(1, 10));
+//            Tag tag = tagRepository.findById(id).get();
+
+            System.out.println("TAG ID " + tag.getId() + " / " + tag.getName());
+
             GiftCertificate cert = generateGiftCertificate(rnd, previousTag, tag);
             previousTag = tag;
             certificateRepository.save(cert);

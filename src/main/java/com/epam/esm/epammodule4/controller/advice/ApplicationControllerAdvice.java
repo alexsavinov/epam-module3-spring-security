@@ -63,9 +63,25 @@ public class ApplicationControllerAdvice {
     }
 
     @ExceptionHandler(UserCannotDeleteException.class)
-    public ResponseEntity<ErrorResponse> handleUserIdIncorrect(UserCannotDeleteException exception) {
+    public ResponseEntity<ErrorResponse> handleUserCannotDeleteException(UserCannotDeleteException exception) {
         log.warn("User cannot be deleted {}", exception.getMessage());
         ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 41103);
+
+        return ResponseEntity.status(CONFLICT).body(responseBody);
+    }
+
+    @ExceptionHandler(UsernameAlreadyTakenException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameAlreadyTakenException(UsernameAlreadyTakenException exception) {
+        log.warn("Username is already taken: {}", exception.getMessage());
+        ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 41203);
+
+        return ResponseEntity.status(CONFLICT).body(responseBody);
+    }
+
+    @ExceptionHandler(EmailAlreadyInUseException.class)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyInUseException(EmailAlreadyInUseException exception) {
+        log.warn("Email is already in use: {}", exception.getMessage());
+        ErrorResponse responseBody = ErrorResponse.of(exception.getMessage(), 41303);
 
         return ResponseEntity.status(CONFLICT).body(responseBody);
     }

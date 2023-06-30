@@ -1,12 +1,21 @@
 package com.epam.esm.epammodule4.security.jwt;
 
+import com.epam.esm.epammodule4.model.entity.Role;
+import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.service.implementation.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -18,15 +27,27 @@ public class JwtUtils {
     @Value("${app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    @Resource
+    private UserDetailsService userDetailsService;
+
     public String generateJwtToken(UserDetailsImpl userPrincipal) {
-        return generateTokenFromUsername(userPrincipal.getUsername());
+        User user = User.builder().id(userPrincipal.getId()).name(userPrincipal.getUsername()).build();
+        return generateTokenFromUser(user);
     }
 
-    public String generateTokenFromUsername(String username) {
+    public String generateTokenFromUser(User user) {
+        List<String> roles = new ArrayList<>();
+        Map<String, Object> rolesClaim = new HashMap<>();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getName());
+        userDetails.getAuthorities().forEach(a -> roles.add(a.getAuthority()));
+        rolesClaim.put("roles", roles);
+
         long expirationDate = (new Date()).getTime() + jwtExpirationMs;
 
         return Jwts.builder()
-                .setSubject(username)
+                .setId(user.getId().toString())
+                .setSubject(user.getName())
+                .addClaims(rolesClaim)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(expirationDate)).signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();

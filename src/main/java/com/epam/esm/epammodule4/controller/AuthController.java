@@ -1,7 +1,8 @@
 package com.epam.esm.epammodule4.controller;
 
+import com.epam.esm.epammodule4.exception.EmailAlreadyInUseException;
 import com.epam.esm.epammodule4.exception.TokenRefreshException;
-import com.epam.esm.epammodule4.model.dto.UserDto;
+import com.epam.esm.epammodule4.exception.UsernameAlreadyTakenException;
 import com.epam.esm.epammodule4.model.dto.request.CreateUserRequest;
 import com.epam.esm.epammodule4.model.dto.request.LoginRequest;
 import com.epam.esm.epammodule4.model.dto.request.SignupRequest;
@@ -64,11 +65,11 @@ public class AuthController {
     @PostMapping("/register")
     public MessageResponse registerUser(@Valid @RequestBody SignupRequest signupRequest) {
         if (userService.existsByUsername(signupRequest.getUsername())) {
-            return new MessageResponse("Error: Username is already taken!");
+            throw new UsernameAlreadyTakenException("Error: Username is already taken!");
         }
 
         if (userService.existsByEmail(signupRequest.getEmail())) {
-            return new MessageResponse("Error: Email is already in use!");
+            throw new EmailAlreadyInUseException("Error: Email is already in use!");
         }
 
         CreateUserRequest createRequest = modelMapper.map(signupRequest, CreateUserRequest.class);
@@ -86,7 +87,7 @@ public class AuthController {
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
-                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+                    String token = jwtUtils.generateTokenFromUser(user);
                     return new TokenRefreshResponse(token, requestRefreshToken);
                 })
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,

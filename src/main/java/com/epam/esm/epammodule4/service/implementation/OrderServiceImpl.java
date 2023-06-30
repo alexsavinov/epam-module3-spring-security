@@ -66,7 +66,11 @@ public class OrderServiceImpl implements OrderService {
         GiftCertificate foundCertificate = certificateService.findById(createOrderRequest.getCertificateId());
 
         Order newOrder = orderMapper.toOrder(createOrderRequest);
-        newOrder.setPrice(foundCertificate.getPrice());
+
+        ofNullable(createOrderRequest.getPrice()).ifPresentOrElse(
+                price -> newOrder.setPrice(price),
+                () -> newOrder.setPrice(foundCertificate.getPrice())
+        );
 
         Order createdOrder = orderRepository.save(newOrder);
         createdOrder.setUser(foundUser);

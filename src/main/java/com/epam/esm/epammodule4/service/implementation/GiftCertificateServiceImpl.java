@@ -20,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Optional.ofNullable;
@@ -91,6 +92,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         ofNullable(updateRequest.getDescription()).ifPresent(foundCertificate::setDescription);
         ofNullable(updateRequest.getPrice()).ifPresent(foundCertificate::setPrice);
         ofNullable(updateRequest.getDuration()).ifPresent(foundCertificate::setDuration);
+
+        List<CreateTagRequest> updateTags = updateRequest.getTags();
+
+        ofNullable(updateTags).ifPresent(certificateTags -> {
+            List<Tag> foundTags = new ArrayList<>(updateTags.size());
+            updateTags.forEach(tag -> {
+                Tag createdTag = tagService.createTagWithCheck(tag);
+                foundTags.add(createdTag);
+            });
+            foundCertificate.setTags(foundTags);
+        });
 
         GiftCertificate updatedCertificate = certificateRepository.save(foundCertificate);
 

@@ -1,5 +1,9 @@
 server:
-  port: 8080
+  port: 8081
+
+  tomcat:
+    relaxed-path-chars: '|,{,},[,],\'
+    relaxed-query-chars: '|,{,},[,],\'
 
 spring:
   profiles:
@@ -7,6 +11,13 @@ spring:
 
   application:
     name: gift certificates
+
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+    rest:
+      default-page-size:
 
   config:
     jpa:
@@ -23,6 +34,7 @@ app:
 
   jwtSecret: "SuperSecretKey"
   jwtExpirationMs: 3600000
+#  jwtExpirationMs: 10000
   jwtRefreshExpirationMs: 86400000
 
   use-oauth2:

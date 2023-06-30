@@ -9,4 +9,5 @@ public class CreateOrderRequest {
 
     private Long userId;
     private Long certificateId;
+    private Double price;
 }

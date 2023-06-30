@@ -7,7 +7,6 @@ import javax.validation.constraints.Size;
 
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Setter
@@ -30,11 +29,9 @@ public class User {
     @Size(max = 80)
     private String username;
 
-    @NotBlank
     @Size(max = 120)
     private String password;
 
-    @NotBlank
     @Size(max = 50)
     @Email
     private String email;
@@ -43,5 +40,5 @@ public class User {
     @JoinTable(name = "customer_role",
             joinColumns = @JoinColumn(name = "customer_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> roles;
 }

@@ -111,6 +111,8 @@ public class UserServiceImpl implements UserService {
     public User create(CreateUserRequest createRequest) {
         log.debug("Creating a new user");
 
+        System.out.println("createRequest.getRole() -- " + createRequest.getRole());
+
         User newUser = User.builder()
                 .name(createRequest.getName())
                 .username(createRequest.getUsername())
@@ -118,6 +120,8 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(createRequest.getPassword()))
                 .roles(parseRoles(createRequest.getRole()))
                 .build();
+
+        System.out.println("newUser.getRoles() -- " + newUser.getRoles());
 
         try {
             User createdUser = userRepository.save(newUser);
@@ -136,14 +140,17 @@ public class UserServiceImpl implements UserService {
 
         checkIdOfCurrentUser(updateRequest.getId());
 
-        User user = User.builder()
-                .id(updateRequest.getId())
-                .name(updateRequest.getName())
-                .username(updateRequest.getUsername())
-                .email(updateRequest.getEmail())
-                .password(passwordEncoder.encode(updateRequest.getPassword()))
-                .roles(parseRoles(updateRequest.getRole()))
-                .build();
+        User user = findById(updateRequest.getId());
+
+        ofNullable(updateRequest.getName()).ifPresent(user::setName);
+        ofNullable(updateRequest.getUsername()).ifPresent(user::setUsername);
+        ofNullable(updateRequest.getEmail()).ifPresent(user::setEmail);
+        ofNullable(updateRequest.getPassword()).ifPresent(password ->
+                user.setPassword(passwordEncoder.encode(password))
+        );
+        ofNullable(updateRequest.getRole()).ifPresent(roles ->
+                user.setRoles(parseRoles(roles))
+        );
 
         try {
             User updatedUser = userRepository.save(user);

@@ -8,6 +8,7 @@ import com.epam.esm.epammodule4.model.entity.Tag;
 import com.epam.esm.epammodule4.model.entity.User;
 import com.epam.esm.epammodule4.repository.TagRepository;
 import com.epam.esm.epammodule4.service.TagService;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
@@ -79,11 +80,18 @@ public class TagServiceImpl implements TagService {
     public Tag update(UpdateTagRequest updateRequest) {
         log.debug("Updating a tag with id {}", updateRequest.getId());
 
-        Tag foundTag = findById(updateRequest.getId());
+        Tag foundTagById = findById(updateRequest.getId());
 
-        foundTag.setName(updateRequest.getName());
+        Optional<Tag> foundTagNyName = tagRepository.findFirstByName(updateRequest.getName());
 
-        Tag updatedTag = tagRepository.save(foundTag);
+        if (foundTagNyName.isPresent() && !foundTagNyName.get().getId().equals(foundTagById.getId())) {
+            throw new TagAlreadyExistsException(
+                    "Requested resource already exists (name = %s)".formatted(updateRequest.getName()));
+        }
+
+        foundTagById.setName(updateRequest.getName());
+
+        Tag updatedTag = tagRepository.save(foundTagById);
 
         log.info("Updated a tag with id {}", updatedTag.getId());
         return updatedTag;

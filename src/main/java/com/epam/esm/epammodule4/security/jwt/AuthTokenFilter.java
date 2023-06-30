@@ -62,6 +62,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private boolean needTokenValidation(String token) {
         return ofNullable(token).isPresent()
                 && jwtUtils.validateJwtToken(token)
-                && ofNullable(SecurityContextHolder.getContext().getAuthentication()).isPresent();
+                && ofNullable(SecurityContextHolder.getContext().getAuthentication()).isEmpty();
     }
 }

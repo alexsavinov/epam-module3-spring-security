@@ -3,7 +3,9 @@ package com.epam.esm.epammodule4.repository.specification;
 import com.epam.esm.epammodule4.model.dto.request.SearchGiftCertificateRequest;
 import com.epam.esm.epammodule4.model.entity.GiftCertificate;
 import com.epam.esm.epammodule4.model.entity.Tag;
+
 import javax.persistence.criteria.*;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -25,23 +27,31 @@ public class GiftCertificateSpecification implements Specification<GiftCertifica
 
     @Override
     public Predicate toPredicate(Root<GiftCertificate> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-        List<Predicate> predicates = new ArrayList<>();
+        Predicate predicateNameDesc = null;
+        Predicate predicateTags = null;
 
-        ofNullable(searchRequest.getName()).ifPresent(name ->
-                predicates.add(builder.like(root.get(NAME), getStringLike(name)))
-        );
+        if (ofNullable(searchRequest.getName()).isPresent()) {
+            predicateNameDesc = builder.or(
+                    builder.like(root.get(NAME), getStringLike(searchRequest.getName())),
+                    builder.like(root.get(DESCRIPTION), getStringLike(searchRequest.getName()))
+            );
+        }
 
-        ofNullable(searchRequest.getDescription()).ifPresent(name ->
-                predicates.add(builder.like(root.get(DESCRIPTION), getStringLike(name)))
-        );
-
-        ofNullable(searchRequest.getTags()).ifPresent(tags -> {
+        if (ofNullable(searchRequest.getTags()).isPresent()) {
             Join<GiftCertificate, Tag> certificateTags = root.join("tags");
             Expression<String> expression = certificateTags.get("name");
-            predicates.add(expression.in(tags));
-        });
+            predicateTags = builder.and(expression.in(searchRequest.getTags()));
+        }
 
-        return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+        if (ofNullable(predicateNameDesc).isPresent() && (ofNullable(predicateTags).isPresent())) {
+            return builder.and(predicateNameDesc, predicateTags);
+        } else if (ofNullable(predicateNameDesc).isPresent() && (ofNullable(predicateTags).isEmpty())) {
+            return predicateNameDesc;
+        } else if (ofNullable(predicateNameDesc).isEmpty() && (ofNullable(predicateTags).isPresent())) {
+            return predicateTags;
+        }
+
+        return null;
     }
 
     private String getStringLike(String name) {
