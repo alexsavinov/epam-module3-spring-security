@@ -19,7 +19,7 @@ spring:
         registration:
           google:
             client-id: 11
-            client-secret: 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
+            client-secret: 22
             scope: openid,profile,email
 #            redirect-uri: http://localhost:8080/oauth2/authorization/google
             redirect-uri: http://127.0.0.1:8080/login/oauth2/code/google
